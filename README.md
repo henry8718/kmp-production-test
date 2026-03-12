@@ -92,3 +92,79 @@ is declared in the `commonMain` source set. Platform implementations are placed 
 corresponding `iOSMain` and `AndroidMain` source sets. They are injected into the
 RSSReader class (the KMM module entry point) via the `create` factory method, which is declared in
 the [RSSReader class companion object](https://github.com/Kotlin/kmm-production-sample/blob/master/shared/src/androidMain/kotlin/com/github/jetbrains/rssreader/core/RssReader.kt).
+
+## Environment setup
+
+> The project is tested with modern Android/Kotlin toolchains. Use **JDK 21** for Gradle builds.
+
+### 1) Prerequisites
+
+- Git
+- JDK 21 (set as default for this repository)
+- Android Studio (latest stable) with:
+  - Android SDK Platform 36
+  - Android Build-Tools 36.x (or latest installed by Android Studio)
+  - Android SDK Platform-Tools
+- Xcode 15+ (for iOS build and simulator run)
+
+### 2) Configure Java (important)
+
+Check Java version:
+
+```bash
+java -version
+```
+
+If your default JDK is too new/unsupported for local Gradle plugins, run Gradle with JDK 21 explicitly:
+
+```bash
+# using mise
+mise exec java@21 -- ./gradlew --version
+
+# or export JAVA_HOME manually (example path)
+export JAVA_HOME=/path/to/jdk-21
+export PATH="$JAVA_HOME/bin:$PATH"
+```
+
+### 3) Android setup and build
+
+Generate local properties (if Android Studio has not created it yet):
+
+```properties
+# local.properties
+sdk.dir=/absolute/path/to/Android/Sdk
+```
+
+Build Android debug APK:
+
+```bash
+./gradlew :composeApp:assembleDebug
+```
+
+Install/run from Android Studio using the `composeApp` Android configuration.
+
+### 4) iOS setup and build
+
+Build shared iOS framework from Gradle:
+
+```bash
+./gradlew :shared:linkDebugFrameworkIosSimulatorArm64
+```
+
+Open iOS project:
+
+```bash
+open iosApp/iosApp.xcodeproj
+```
+
+Then select an iOS Simulator and run the `iosApp` scheme in Xcode.
+
+### 5) Troubleshooting
+
+- **`IllegalArgumentException: 25.0.1` (or similar Java version parse issue)**  
+  Switch to JDK 21 for Gradle commands.
+- **Gradle cannot resolve Android plugins/dependencies**  
+  Check network/proxy and ensure access to `google()`, `mavenCentral()`, and Gradle Plugin Portal.
+- **`xcodebuild` not found**  
+  Install Xcode and command line tools:
+  `xcode-select --install`
